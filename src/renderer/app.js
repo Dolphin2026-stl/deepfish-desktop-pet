@@ -1,5 +1,6 @@
 const appRoot = document.querySelector("#pet-app");
 const stage = document.querySelector("#pet-stage");
+const character = document.querySelector("#character");
 const speech = document.querySelector("#speech");
 const phaseLabel = document.querySelector("#phase-label");
 const speechText = document.querySelector("#speech-text");
@@ -12,6 +13,13 @@ const chatClose = document.querySelector("#chat-close");
 const providerLabel = document.querySelector("#provider-label");
 
 const behaviorApi = window.DeepFishBehaviors;
+const frameAliases = { dream: "sleep" };
+const frameNames = [
+  "neutral", "walk", "walk-b", "wash", "work", "coffee", "toy", "sleep", "hungry",
+  "sit", "pat", "feed", "shy", "trip", "cry", "think", "smug", "angry", "ciallo",
+  "fly", "price", "panic", "rival", "shock", "pressure", "stranded", "stretch",
+  "startle", "goAway"
+];
 const signaturePool = ["ciallo", "smug", "pressure", "shock", "fly", "price", "rival", "goAway", "stranded"];
 const behaviorLabels = {
   walk: "散步中", wash: "洗碗中", work: "认真加班", coffee: "咖啡时间", toy: "摸鱼中",
@@ -38,6 +46,8 @@ let sceneTimer;
 let idleTimer;
 let walkTimer;
 let walkStopTimer;
+let frameTimer;
+let frameLoopTimer;
 let walkPending = false;
 let walkDirection = -1;
 let drag;
@@ -48,6 +58,53 @@ let tripCount = 0;
 
 function randomOf(items) {
   return items[Math.floor(Math.random() * items.length)];
+}
+
+function framePath(name) {
+  const resolvedName = frameAliases[name] || name;
+  return `../../assets/frames/frame-${resolvedName}.png`;
+}
+
+function restingFrame() {
+  return window.DeepFishClock.getPhase().id === "sleep" && chatPanel.hidden ? "sleep" : "neutral";
+}
+
+function setFrame(name) {
+  const resolvedName = frameAliases[name] || name;
+  character.src = framePath(resolvedName);
+  character.dataset.frame = resolvedName;
+}
+
+function stopFramePlayback(reset = true) {
+  clearTimeout(frameTimer);
+  clearInterval(frameLoopTimer);
+  frameTimer = undefined;
+  frameLoopTimer = undefined;
+  if (reset) setFrame(restingFrame());
+}
+
+function playFrame(name, duration) {
+  stopFramePlayback(false);
+  setFrame(name);
+  frameTimer = setTimeout(() => {
+    frameTimer = undefined;
+    setFrame(restingFrame());
+  }, duration);
+}
+
+function startFrameLoop(names, interval = 220) {
+  stopFramePlayback(false);
+  let index = 0;
+  setFrame(names[index]);
+  frameLoopTimer = setInterval(() => {
+    index = (index + 1) % names.length;
+    setFrame(names[index]);
+  }, interval);
+}
+
+for (const name of frameNames) {
+  const image = new Image();
+  image.src = framePath(name);
 }
 
 function removePrefixedClass(prefix) {
@@ -102,6 +159,7 @@ function stopWalk(clearScene = true) {
   walkTimer = undefined;
   walkStopTimer = undefined;
   appRoot.classList.remove("is-walking");
+  if (frameLoopTimer) stopFramePlayback();
   if (clearScene && appRoot.classList.contains("scene-walk")) setScene(null);
 }
 
@@ -111,6 +169,7 @@ function startWalk(duration = 7200, announce = true) {
   setExpression("happy");
   animate("walk", duration);
   appRoot.classList.add("is-walking");
+  startFrameLoop(["walk", "walk-b"]);
   if (announce) say(behaviorApi.formatLine("walk"), behaviorLabels.walk, 3400);
   walkTimer = setInterval(async () => {
     if (walkPending || drag || !chatPanel.hidden) return;
@@ -138,6 +197,7 @@ function runBehavior(id, options = {}) {
   setScene(behavior.scene);
   setExpression(behavior.expression);
   animate(id, behavior.duration);
+  playFrame(id, behavior.duration);
   particles(behavior.icon, ["cry", "shock", "rival"].includes(id) ? 6 : 3);
   if (options.say !== false) say(behaviorApi.formatLine(id), options.label || behaviorLabels[id], Math.min(5200, behavior.duration + 1800));
   clearTimeout(sceneTimer);
@@ -156,6 +216,7 @@ function applyClock() {
     setExpression("sleep");
     setScene("sleep");
   }
+  if (!frameTimer && !frameLoopTimer && !drag && chatPanel.hidden) setFrame(restingFrame());
 }
 
 function nextIdleBehavior() {
@@ -222,12 +283,14 @@ function reactToWalkHover(event) {
 function openChat() {
   stopWalk();
   chatPanel.hidden = false;
+  stopFramePlayback();
   speech.classList.remove("visible");
   chatInput.focus();
 }
 
 function closeChat() {
   chatPanel.hidden = true;
+  stopFramePlayback();
   stage.focus();
   scheduleIdle();
 }
@@ -284,6 +347,7 @@ stage.addEventListener("pointerleave", () => { lastZone = ""; });
 stage.addEventListener("pointerdown", (event) => {
   if (event.button !== 0) return;
   stopWalk();
+  stopFramePlayback();
   stage.setPointerCapture(event.pointerId);
   drag = { x: event.screenX, y: event.screenY, total: 0 };
 });

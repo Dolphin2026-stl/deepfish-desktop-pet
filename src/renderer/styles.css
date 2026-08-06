@@ -454,3 +454,23 @@ button { -webkit-app-region: no-drag; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
 }
+
+.frame-mode .character,
+.frame-mode .pet-stage:hover .character {
+  width: 292px;
+  height: 330px;
+  max-width: none;
+  object-fit: contain;
+  filter: none;
+  animation: none !important;
+  transform: none !important;
+  transition: none;
+}
+
+.frame-mode .floor-shadow,
+.frame-mode .expression-layer,
+.frame-mode .scene-layer,
+.frame-mode .sleep-mark,
+.frame-mode .mood {
+  display: none;
+}

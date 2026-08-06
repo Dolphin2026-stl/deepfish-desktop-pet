@@ -11,7 +11,12 @@ const required = [
   "src/renderer/settings.js",
   "src/shared/circadian.js",
   "src/shared/behaviors.js",
-  "assets/character.png"
+  "assets/character.png",
+  "assets/frames/frame-neutral.png",
+  "assets/frames/frame-walk.png",
+  "assets/frames/frame-walk-b.png",
+  "assets/frames/frame-shock.png",
+  "assets/frames/frame-sleep.png"
 ];
 
 for (const relative of required) {
