@@ -35,12 +35,35 @@
       <div id="pet-stage" class="pet-stage" tabindex="0" role="button" aria-label="拖动、点击或双击大肥鱼">
         <div class="floor-shadow"></div>
         <img id="character" class="character" src="../../assets/character.png" alt="蓝色大肥鱼桌宠">
+        <div id="expression-layer" class="expression-layer" aria-hidden="true">
+          <span class="eye eye-left"></span>
+          <span class="eye eye-right"></span>
+          <span class="blush blush-left"></span>
+          <span class="blush blush-right"></span>
+          <span class="tear tear-left"></span>
+          <span class="tear tear-right"></span>
+          <span class="sweat-drop"></span>
+          <span class="expression-mouth"></span>
+        </div>
+        <div id="scene-layer" class="scene-layer" aria-hidden="true">
+          <span class="prop prop-laptop">⌨</span>
+          <span class="prop prop-coffee">☕</span>
+          <span class="prop prop-bowl">🍚</span>
+          <span class="prop prop-sink">🫧</span>
+          <span class="prop prop-toy">🐋</span>
+          <span class="prop prop-chair">♨</span>
+          <span class="prop prop-guns">🔫</span>
+          <span class="prop prop-cloud">☁</span>
+          <span class="prop prop-handkerchief">▱</span>
+          <span class="prop prop-price">¥</span>
+        </div>
         <div id="sleep-mark" class="sleep-mark" aria-hidden="true">Z</div>
         <div id="mood" class="mood" aria-hidden="true">♡</div>
       </div>
       <p class="hint">双击聊天 · 右键菜单</p>
     </main>
     <script src="../shared/circadian.js"></script>
+    <script src="../shared/behaviors.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

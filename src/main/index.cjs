@@ -110,6 +110,17 @@ function showPetMenu() {
     { label: "和大肥鱼聊天", click: () => petWindow.webContents.send("pet-command", "open-chat") },
     { label: "喂一碗白饭", click: () => petWindow.webContents.send("pet-command", "feed") },
     { label: "摸摸头", click: () => petWindow.webContents.send("pet-command", "pat") },
+    {
+      label: "陪她玩",
+      submenu: [
+        { label: "出去散步", click: () => petWindow.webContents.send("pet-command", "walk") },
+        { label: "让她洗碗", click: () => petWindow.webContents.send("pet-command", "wash") },
+        { label: "加班喝咖啡", click: () => petWindow.webContents.send("pet-command", "coffee") },
+        { label: "抱鲸鱼玩偶", click: () => petWindow.webContents.send("pet-command", "toy") },
+        { label: "坐好", click: () => petWindow.webContents.send("pet-command", "sit") },
+        { label: "睡一会儿", click: () => petWindow.webContents.send("pet-command", "sleep") }
+      ]
+    },
     { type: "separator" },
     {
       label: "始终置顶",
@@ -134,6 +145,15 @@ function registerIpc() {
     const [x, y] = petWindow.getPosition();
     const [nextX, nextY] = keepOnScreen(petWindow, x + Math.round(delta.x), y + Math.round(delta.y));
     petWindow.setPosition(nextX, nextY, false);
+  });
+  ipcMain.handle("walk-pet", (_event, delta) => {
+    if (!petWindow || petWindow.isDestroyed()) return { boundary: true };
+    const [x, y] = petWindow.getPosition();
+    const targetX = x + Math.round(delta.x);
+    const targetY = y + Math.round(delta.y);
+    const [nextX, nextY] = keepOnScreen(petWindow, targetX, targetY);
+    petWindow.setPosition(nextX, nextY, false);
+    return { x: nextX, y: nextY, boundary: nextX !== targetX || nextY !== targetY };
   });
   ipcMain.on("open-settings", createSettingsWindow);
   ipcMain.handle("settings:get", () => store.publicValue());
@@ -170,6 +190,11 @@ async function runSmokeCapture() {
   await new Promise((resolve) => setTimeout(resolve, 1200));
   const petShot = await petWindow.capturePage();
   fs.writeFileSync(path.join(outputDir, "pet-window.png"), petShot.toPNG());
+  petWindow.webContents.send("pet-command", "shock");
+  await new Promise((resolve) => setTimeout(resolve, 650));
+  const actionShot = await petWindow.capturePage();
+  if (actionShot.isEmpty()) throw new Error("Action smoke capture is empty");
+  fs.writeFileSync(path.join(outputDir, "pet-action.png"), actionShot.toPNG());
   createSettingsWindow();
   await new Promise((resolve) => settingsWindow.webContents.once("did-finish-load", resolve));
   settingsWindow.show();

@@ -7,8 +7,13 @@ const keyStatus = document.querySelector("#key-status");
 const clearKey = document.querySelector("#clear-key");
 const alwaysOnTop = document.querySelector("#always-on-top");
 const sound = document.querySelector("#sound");
+const freeWalk = document.querySelector("#free-walk");
+const interactiveZones = document.querySelector("#interactive-zones");
+const spicyLines = document.querySelector("#spicy-lines");
 const scale = document.querySelector("#scale");
 const scaleOutput = document.querySelector("#scale-output");
+const behaviorIntensity = document.querySelector("#behavior-intensity");
+const behaviorOutput = document.querySelector("#behavior-output");
 const status = document.querySelector("#status");
 const resetProvider = document.querySelector("#reset-provider");
 
@@ -40,6 +45,7 @@ function selectProvider(provider, fillPreset = true) {
 
 form.elements.provider.forEach((radio) => radio.addEventListener("change", () => selectProvider(radio.value)));
 scale.addEventListener("input", () => { scaleOutput.value = `${Math.round(Number(scale.value) * 100)}%`; });
+behaviorIntensity.addEventListener("input", () => { behaviorOutput.value = `${Math.round(Number(behaviorIntensity.value) * 100)}%`; });
 resetProvider.addEventListener("click", () => selectProvider("pollinations"));
 
 form.addEventListener("submit", async (event) => {
@@ -54,7 +60,11 @@ form.addEventListener("submit", async (event) => {
       clearApiKey: clearKey.checked,
       alwaysOnTop: alwaysOnTop.checked,
       sound: sound.checked,
-      scale: Number(scale.value)
+      freeWalk: freeWalk.checked,
+      interactiveZones: interactiveZones.checked,
+      spicyLines: spicyLines.checked,
+      scale: Number(scale.value),
+      behaviorIntensity: Number(behaviorIntensity.value)
     });
     apiKey.value = "";
     clearKey.checked = false;
@@ -71,7 +81,12 @@ window.deepFish.getSettings().then((settings) => {
   model.value = settings.model;
   alwaysOnTop.checked = settings.alwaysOnTop;
   sound.checked = settings.sound;
+  freeWalk.checked = settings.freeWalk;
+  interactiveZones.checked = settings.interactiveZones;
+  spicyLines.checked = settings.spicyLines;
   scale.value = settings.scale;
   scaleOutput.value = `${Math.round(Number(settings.scale) * 100)}%`;
+  behaviorIntensity.value = settings.behaviorIntensity;
+  behaviorOutput.value = `${Math.round(Number(settings.behaviorIntensity) * 100)}%`;
   keyStatus.textContent = settings.hasApiKey ? "已加密保存，留空即可保留" : "尚未保存 Key";
 });

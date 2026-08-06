@@ -8,6 +8,7 @@ function subscribe(channel, callback) {
 
 contextBridge.exposeInMainWorld("deepFish", {
   move: (delta) => ipcRenderer.send("move-pet", delta),
+  walkStep: (delta) => ipcRenderer.invoke("walk-pet", delta),
   showMenu: () => ipcRenderer.send("pet-menu"),
   openSettings: () => ipcRenderer.send("open-settings"),
   getSettings: () => ipcRenderer.invoke("settings:get"),

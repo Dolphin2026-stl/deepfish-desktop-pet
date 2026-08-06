@@ -10,6 +10,7 @@ const required = [
   "src/renderer/app.js",
   "src/renderer/settings.js",
   "src/shared/circadian.js",
+  "src/shared/behaviors.js",
   "assets/character.png"
 ];
 
@@ -24,7 +25,8 @@ const scripts = [
   "src/preload.cjs",
   "src/renderer/app.js",
   "src/renderer/settings.js",
-  "src/shared/circadian.js"
+  "src/shared/circadian.js",
+  "src/shared/behaviors.js"
 ];
 
 for (const relative of scripts) {
