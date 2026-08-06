@@ -79,17 +79,6 @@ npm run pack
 
 打包产物位于 `dist/`。
 
-## 发布到 GitHub
-
-本地仓库已经初始化并提交。安装 [GitHub CLI](https://cli.github.com/) 后，首次使用先完成登录：
-
-```powershell
-gh auth login
-gh repo create deepfish-desktop-pet --public --source=. --remote=origin --push
-```
-
-如果你希望仓库保持私有，将 `--public` 换成 `--private` 即可。
-
 ## 项目结构
 
 ```text
