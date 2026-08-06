@@ -36,6 +36,7 @@ class SettingsStore {
     for (const key of allowed) {
       if (Object.hasOwn(next, key)) this.data[key] = next[key];
     }
+    this.data.scale = Math.min(1.15, Math.max(0.6, Number(this.data.scale) || 1));
     if (typeof next.apiKey === "string" && next.apiKey.trim()) {
       if (!safeStorage.isEncryptionAvailable()) throw new Error("系统密钥加密当前不可用");
       this.data.apiKeyEncrypted = safeStorage.encryptString(next.apiKey.trim()).toString("base64");
