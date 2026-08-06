@@ -1,0 +1,45 @@
+{
+  "name": "deepfish-desktop-pet",
+  "version": "1.0.0",
+  "description": "A playful DeepSeek-inspired anime desktop pet for Windows.",
+  "main": "src/main/index.cjs",
+  "author": "DeepFish Desktop Pet contributors",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "node --test",
+    "check": "node scripts/check.mjs",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win nsis portable"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "cn.deepfish.desktoppet",
+    "productName": "大肥鱼桌宠",
+    "electronDist": "node_modules/electron/dist",
+    "asar": true,
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "DeepFish-Pet-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "大肥鱼桌宠"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'">
+    <title>大肥鱼桌宠</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main id="pet-app" class="pet-app" aria-label="大肥鱼桌宠">
+      <section id="speech" class="speech" role="status" aria-live="polite">
+        <strong id="phase-label">专注营业</strong>
+        <span id="speech-text">让我看看今天有什么问题。</span>
+      </section>
+
+      <section id="chat-panel" class="chat-panel" aria-label="聊天窗口" hidden>
+        <header class="chat-header">
+          <div>
+            <strong>大肥鱼</strong>
+            <span id="provider-label">免费模型</span>
+          </div>
+          <button id="chat-close" class="icon-button" type="button" title="关闭聊天" aria-label="关闭聊天">×</button>
+        </header>
+        <div id="chat-log" class="chat-log" aria-live="polite">
+          <p class="message assistant">我在呢。想聊什么？</p>
+        </div>
+        <form id="chat-form" class="chat-form">
+          <input id="chat-input" maxlength="600" autocomplete="off" placeholder="问大肥鱼..." aria-label="聊天内容">
+          <button type="submit" title="发送" aria-label="发送">↑</button>
+        </form>
+      </section>
+
+      <div id="effect-layer" class="effect-layer" aria-hidden="true"></div>
+      <div id="pet-stage" class="pet-stage" tabindex="0" role="button" aria-label="拖动、点击或双击大肥鱼">
+        <div class="floor-shadow"></div>
+        <img id="character" class="character" src="../../assets/character.png" alt="蓝色大肥鱼桌宠">
+        <div id="sleep-mark" class="sleep-mark" aria-hidden="true">Z</div>
+        <div id="mood" class="mood" aria-hidden="true">♡</div>
+      </div>
+      <p class="hint">双击聊天 · 右键菜单</p>
+    </main>
+    <script src="../shared/circadian.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
