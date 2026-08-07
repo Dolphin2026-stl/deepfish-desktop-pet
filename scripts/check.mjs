@@ -16,8 +16,14 @@ const required = [
   "assets/frames/frame-walk.png",
   "assets/frames/frame-walk-b.png",
   "assets/frames/frame-ciallo-b.png",
+  "assets/frames/frame-smug.png",
+  "assets/frames/frame-cry.png",
+  "assets/frames/frame-stranded.png",
+  "assets/frames/frame-pat.png",
   "assets/frames/frame-shock.png",
-  "assets/frames/frame-sleep.png"
+  "assets/frames/frame-sleep.png",
+  "scripts/extract-reference-frame.py",
+  "scripts/stamp-apron-emblem.py"
 ];
 
 for (const relative of required) {

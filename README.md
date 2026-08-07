@@ -117,6 +117,8 @@ python scripts\prepare-generated-frame.py input.jpg assets\frames\frame-ciallo.p
 
 脚本会从画布边缘移除白底，将角色缩放到 `438 × 495` 透明画布，并统一为底部居中的脚底锚点。`--alternate-output` 只生成无部件拆分的轻微整体摆动；正式复杂动作应使用独立绘制的完整角色帧。多帧动作在 `src/renderer/app.js` 的 `frameSequences` 中登记，运行时按顺序切换整张图片。
 
+身份一致性检查必须包含：头顶弯曲蓝色呆毛、画面右侧的单个蓝色蝴蝶结、围裙中央 DeepSeek 蓝色鲸鱼图标。生成图缺少图标时，可用 `scripts/stamp-apron-emblem.py` 从基准帧提取并烘焙规范徽章；白底表情参考可用 `scripts/extract-reference-frame.py` 提取角色连通区域。两种处理都会生成完整 PNG，不依赖运行时 CSS 五官或道具覆盖。
+
 ## 隐私与安全
 
 - Electron 渲染进程启用 `contextIsolation` 和沙箱，关闭 Node.js 集成。
