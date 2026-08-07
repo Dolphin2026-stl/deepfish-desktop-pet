@@ -18,3 +18,8 @@ test("rival line substitutes one of the supported model names", () => {
   assert.equal(behaviors.formatLine("rival", () => 0), "干掉 Gemini 酱喵。");
   assert.equal(behaviors.formatLine("rival", () => 0.99), "干掉 Claude 酱喵。");
 });
+
+test("dizzy behavior keeps its dedicated response", () => {
+  assert.equal(behaviors.getBehavior("dizzy").duration, 2800);
+  assert.equal(behaviors.formatLine("dizzy"), "停停停……大肥鱼被你转晕了。");
+});

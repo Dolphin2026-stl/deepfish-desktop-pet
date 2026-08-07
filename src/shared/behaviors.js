@@ -32,6 +32,7 @@
     cry: { scene: "cry", expression: "cry", icon: "💧", duration: 3800, line: "我不是大肥鱼……" },
     stretch: { scene: "stretch", expression: "sleep", icon: "Z", duration: 1500, line: "你回来啦，我也刚好伸完懒腰。" },
     startle: { scene: "startle", expression: "shock", icon: "‼", duration: 1000, line: "吓我一跳，你回来啦。" },
+    dizzy: { scene: "dizzy", expression: "shock", icon: "✦", duration: 2800, line: "停停停……大肥鱼被你转晕了。" },
     goAway: { scene: "go-away", expression: "smug", icon: "♡", duration: 2100, line: "去别的地方玩，不要耽误 AGI 训练。" }
   };
 

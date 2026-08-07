@@ -13,7 +13,8 @@ const chatClose = document.querySelector("#chat-close");
 const providerLabel = document.querySelector("#provider-label");
 
 const behaviorApi = window.DeepFishBehaviors;
-const frameAliases = { dream: "sleep" };
+const gestureApi = window.DeepFishGestures;
+const frameAliases = { dream: "sleep", dizzy: "shock" };
 const frameSequences = {
   ciallo: { names: ["ciallo", "ciallo-b"], interval: 420 }
 };
@@ -30,7 +31,7 @@ const behaviorLabels = {
   feed: "投喂成功", shy: "害羞", trip: "绊倒了", cry: "委屈巴巴", think: "深度思考",
   smug: "自信", angry: "用户怒了", ciallo: "随机卖萌", fly: "起飞", price: "准备涨价",
   panic: "慌乱", rival: "双枪模式", shock: "震惊", pressure: "压力测试", stranded: "搁浅了",
-  stretch: "欢迎回来", startle: "惊醒", goAway: "AGI 训练中"
+  stretch: "欢迎回来", startle: "惊醒", dizzy: "转晕了", goAway: "AGI 训练中"
 };
 
 const clickLines = ["我有在认真营业。", "好的，用户又发癫了。", "你是不是想摸摸头？", "再点就要收费啦。"];
@@ -170,6 +171,19 @@ function particles(icon, count = 5) {
   }
 }
 
+function dizzyStars(duration) {
+  const ring = document.createElement("div");
+  ring.className = "dizzy-stars";
+  for (let index = 0; index < 5; index += 1) {
+    const star = document.createElement("span");
+    star.textContent = index % 2 ? "★" : "✦";
+    star.style.setProperty("--star-delay", `${index * -180}ms`);
+    ring.append(star);
+  }
+  effectLayer.append(ring);
+  setTimeout(() => ring.remove(), duration);
+}
+
 function stopWalk(clearScene = true) {
   clearInterval(walkTimer);
   clearTimeout(walkStopTimer);
@@ -216,6 +230,7 @@ function runBehavior(id, options = {}) {
   setExpression(behavior.expression);
   animate(id, behavior.duration);
   playBehaviorFrames(id, behavior.duration);
+  if (id === "dizzy") dizzyStars(behavior.duration);
   particles(behavior.icon, ["cry", "shock", "rival"].includes(id) ? 6 : 3);
   if (options.say !== false) say(behaviorApi.formatLine(id), options.label || behaviorLabels[id], Math.min(5200, behavior.duration + 1800));
   clearTimeout(sceneTimer);
@@ -367,7 +382,12 @@ stage.addEventListener("pointerdown", (event) => {
   stopWalk();
   stopFramePlayback();
   stage.setPointerCapture(event.pointerId);
-  drag = { x: event.screenX, y: event.screenY, total: 0 };
+  drag = {
+    x: event.screenX,
+    y: event.screenY,
+    total: 0,
+    spin: gestureApi.createSpinTracker(event.screenX, event.screenY, event.timeStamp)
+  };
 });
 
 stage.addEventListener("pointermove", (event) => {
@@ -378,6 +398,7 @@ stage.addEventListener("pointermove", (event) => {
   const dx = event.screenX - drag.x;
   const dy = event.screenY - drag.y;
   if (dx || dy) {
+    gestureApi.trackSpin(drag.spin, event.screenX, event.screenY, event.timeStamp);
     window.deepFish.move({ x: dx, y: dy });
     drag.x = event.screenX;
     drag.y = event.screenY;
@@ -387,8 +408,13 @@ stage.addEventListener("pointermove", (event) => {
 
 stage.addEventListener("pointerup", (event) => {
   if (event.button !== 0) return;
-  const moved = drag?.total || 0;
+  const completedDrag = drag;
+  const moved = completedDrag?.total || 0;
   drag = undefined;
+  if (completedDrag?.spin?.dizzy) {
+    runBehavior("dizzy");
+    return;
+  }
   if (moved > 10) {
     runBehavior("startle", { label: "拖拽反馈" });
     return;

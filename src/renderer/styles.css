@@ -363,10 +363,29 @@ button { -webkit-app-region: no-drag; }
 .pet-app.action-rival .character { animation: rival .28s ease-in-out 6; }
 .pet-app.action-panic .character { animation: panic .18s linear 8; }
 .pet-app.action-angry .character { animation: angry .3s ease-in-out 5; }
+.pet-app.action-dizzy .character { animation: dizzy-wobble .46s ease-in-out 6; }
 .pet-app.action-pat .mood { animation: pop-heart 700ms ease-out; }
 
 .effect-layer { position: absolute; inset: 0; z-index: 8; pointer-events: none; overflow: hidden; }
 .particle { position: absolute; bottom: 74px; left: 50%; font-size: 21px; animation: particle 900ms ease-out forwards; }
+.dizzy-stars {
+  position: absolute;
+  left: 50%;
+  bottom: 260px;
+  width: 150px;
+  height: 42px;
+  transform: translateX(-50%);
+}
+.dizzy-stars span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: #f2bb38;
+  font-size: 20px;
+  text-shadow: 0 1px 0 #8b5d16;
+  animation: dizzy-star-orbit .9s linear infinite;
+  animation-delay: var(--star-delay);
+}
 
 .hint {
   position: absolute;
@@ -438,6 +457,14 @@ button { -webkit-app-region: no-drag; }
 @keyframes rival { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-5px) rotate(-2deg); } }
 @keyframes panic { 0%,100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
 @keyframes angry { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-3deg) translateY(-2px); } }
+@keyframes dizzy-wobble { 0%,100% { transform: translateX(0) rotate(0); } 25% { transform: translateX(-7px) rotate(-4deg); } 75% { transform: translateX(7px) rotate(4deg); } }
+@keyframes dizzy-star-orbit {
+  0% { opacity: .72; transform: translate(-72px,0) scale(.78); }
+  25% { opacity: 1; transform: translate(0,-17px) scale(1.08); }
+  50% { opacity: .72; transform: translate(72px,0) scale(.78); }
+  75% { opacity: .48; transform: translate(0,14px) scale(.65); }
+  100% { opacity: .72; transform: translate(-72px,0) scale(.78); }
+}
 @keyframes pop-heart { 0% { opacity: 0; transform: scale(.2) translateY(8px); } 40% { opacity: 1; } 100% { opacity: 0; transform: scale(1.3) translateY(-26px); } }
 @keyframes sleep-z { 0% { opacity: 0; transform: translate(0,10px) scale(.7); } 35% { opacity: 1; } 100% { opacity: 0; transform: translate(18px,-28px) scale(1.1); } }
 @keyframes particle { 0% { opacity: 0; transform: translate(-50%,0) scale(.6); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--drift),-90px) scale(1.2) rotate(var(--turn)); } }
