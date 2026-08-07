@@ -119,6 +119,8 @@ python scripts\prepare-generated-frame.py input.jpg assets\frames\frame-ciallo.p
 
 身份一致性检查必须包含：头顶弯曲蓝色呆毛、画面右侧的单个蓝色蝴蝶结、围裙中央 DeepSeek 蓝色鲸鱼图标。生成图缺少图标时，可用 `scripts/stamp-apron-emblem.py` 从基准帧提取并烘焙规范徽章；白底表情参考可用 `scripts/extract-reference-frame.py` 提取角色连通区域。两种处理都会生成完整 PNG，不依赖运行时 CSS 五官或道具覆盖。
 
+All expression assets are bundled locally. The running app does not call Coze, an image-generation service, or any remote image endpoint; Coze was used only as an optional authoring tool for the checked-in PNG source art.
+
 ## 隐私与安全
 
 - Electron 渲染进程启用 `contextIsolation` 和沙箱，关闭 Node.js 集成。

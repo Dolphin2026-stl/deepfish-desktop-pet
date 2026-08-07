@@ -22,8 +22,28 @@ const required = [
   "assets/frames/frame-pat.png",
   "assets/frames/frame-shock.png",
   "assets/frames/frame-sleep.png",
+  "assets/frames/frame-angry.png",
+  "assets/frames/frame-coffee.png",
+  "assets/frames/frame-feed.png",
+  "assets/frames/frame-fly.png",
+  "assets/frames/frame-goAway.png",
+  "assets/frames/frame-hungry.png",
+  "assets/frames/frame-panic.png",
+  "assets/frames/frame-pressure.png",
+  "assets/frames/frame-price.png",
+  "assets/frames/frame-rival.png",
+  "assets/frames/frame-shy.png",
+  "assets/frames/frame-sit.png",
+  "assets/frames/frame-startle.png",
+  "assets/frames/frame-stretch.png",
+  "assets/frames/frame-think.png",
+  "assets/frames/frame-toy.png",
+  "assets/frames/frame-trip.png",
+  "assets/frames/frame-wash.png",
+  "assets/frames/frame-work.png",
   "scripts/extract-reference-frame.py",
-  "scripts/stamp-apron-emblem.py"
+  "scripts/stamp-apron-emblem.py",
+  "scripts/prepare-generated-frame.py"
 ];
 
 for (const relative of required) {

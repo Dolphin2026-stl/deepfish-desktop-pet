@@ -5,9 +5,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 
 def remove_border_background(image: Image.Image) -> Image.Image:
@@ -15,15 +14,27 @@ def remove_border_background(image: Image.Image) -> Image.Image:
     channel_range = rgb.max(axis=2) - rgb.min(axis=2)
     background_candidate = (rgb.min(axis=2) >= 215) & (channel_range <= 38)
 
-    _, labels = cv2.connectedComponents(background_candidate.astype(np.uint8), connectivity=8)
-    edge_labels = np.unique(
-        np.concatenate((labels[0], labels[-1], labels[:, 0], labels[:, -1]))
-    )
-    edge_labels = edge_labels[edge_labels != 0]
-    background = np.isin(labels, edge_labels)
-    alpha = np.where(background, 0, 255).astype(np.uint8)
-    alpha = cv2.morphologyEx(alpha, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
-    alpha = cv2.GaussianBlur(alpha, (0, 0), 0.55)
+    candidate = Image.fromarray(background_candidate.astype(np.uint8) * 255, "L")
+    candidate = candidate.filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.MinFilter(5))
+    mask = np.asarray(candidate) > 0
+    height, width = mask.shape
+    visited = np.zeros_like(mask, dtype=bool)
+    stack = [(x, 0) for x in range(width) if mask[0, x]]
+    stack += [(x, height - 1) for x in range(width) if mask[height - 1, x]]
+    stack += [(0, y) for y in range(height) if mask[y, 0]]
+    stack += [(width - 1, y) for y in range(height) if mask[y, width - 1]]
+    while stack:
+        x, y = stack.pop()
+        if x < 0 or y < 0 or x >= width or y >= height or visited[y, x] or not mask[y, x]:
+            continue
+        visited[y, x] = True
+        stack.extend(((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)))
+
+    background = visited
+    alpha_image = Image.fromarray(np.where(background, 0, 255).astype(np.uint8), "L")
+    alpha_image = alpha_image.filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3))
+    alpha_image = alpha_image.filter(ImageFilter.GaussianBlur(0.55))
+    alpha = np.asarray(alpha_image)
 
     rgba = np.dstack((rgb, alpha))
     rgba[alpha == 0, :3] = 0
