@@ -15,7 +15,7 @@ const providerLabel = document.querySelector("#provider-label");
 const behaviorApi = window.DeepFishBehaviors;
 const frameAliases = { dream: "sleep" };
 const frameSequences = {
-  ciallo: { names: ["ciallo", "ciallo-b"], interval: 280 }
+  ciallo: { names: ["ciallo", "ciallo-b"], interval: 420 }
 };
 const frameNames = [
   "neutral", "walk", "walk-b", "wash", "work", "coffee", "toy", "sleep", "hungry",

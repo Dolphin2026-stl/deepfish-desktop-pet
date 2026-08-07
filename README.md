@@ -86,7 +86,7 @@ npm run pack
 可以用内置截图模式检查指定动作在真实透明窗口中的构图：
 
 ```powershell
-.\node_modules\.bin\electron.cmd . --smoke-test --smoke-action=ciallo --smoke-dir=.\work\smoke-ciallo
+.\node_modules\.bin\electron.cmd . --smoke-test --smoke-action=ciallo --smoke-wait=520 --smoke-dir=.\work\smoke-ciallo
 ```
 
 打包产物位于 `dist/`。
