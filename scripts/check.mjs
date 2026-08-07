@@ -15,6 +15,7 @@ const required = [
   "assets/frames/frame-neutral.png",
   "assets/frames/frame-walk.png",
   "assets/frames/frame-walk-b.png",
+  "assets/frames/frame-ciallo-b.png",
   "assets/frames/frame-shock.png",
   "assets/frames/frame-sleep.png"
 ];

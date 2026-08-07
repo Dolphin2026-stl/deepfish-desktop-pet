@@ -13,7 +13,7 @@
 - 自动散步、洗碗、加班喝咖啡、抱鲸鱼玩偶、坐下和睡觉场景
 - 头发、脸蛋、腿部区域感应：卖萌、害羞、绊倒，连续绊倒后会拿手帕哭哭
 - 饥饿咕咕叫、震惊蘑菇云、双枪模式、飞行、涨价和模型梗台词
-- 随机闲置彩蛋与 29 张固定锚点 PNG 表情、道具和动作帧
+- 随机闲置彩蛋与 30 张固定锚点 PNG 表情、道具和动作帧
 - 监听 Windows 锁屏、解锁和系统恢复事件
 - 解锁后随机触发“伸懒腰”或“惊醒”
 - 内置聊天面板，保留最近十轮上下文
@@ -83,6 +83,12 @@ npm run pack
 - `npm run pack`：生成未安装目录，用于快速验证 Electron 打包
 - `npm run dist`：生成 NSIS 安装包和便携版
 
+可以用内置截图模式检查指定动作在真实透明窗口中的构图：
+
+```powershell
+.\node_modules\.bin\electron.cmd . --smoke-test --smoke-action=ciallo --smoke-dir=.\work\smoke-ciallo
+```
+
 打包产物位于 `dist/`。
 
 ## 项目结构
@@ -90,7 +96,7 @@ npm run pack
 ```text
 deepfish-desktop-pet/
 ├─ assets/                 # 原始立绘与固定锚点动作帧
-├─ scripts/                # 静态检查脚本
+├─ scripts/                # 静态检查与动作帧处理脚本
 ├─ src/
 │  ├─ main/                # 窗口、托盘、系统事件、模型请求、设置存储
 │  ├─ renderer/            # 桌宠、聊天与设置界面
@@ -102,6 +108,14 @@ deepfish-desktop-pet/
 ## 更换角色素材
 
 运行时会在 `assets/frames/` 中切换同尺寸、同锚点的透明 PNG，避免表情和道具随姿势发生错位。`frame-neutral.png` 是待机图，`frame-walk.png` 与 `frame-walk-b.png` 组成散步循环，其余 `frame-<动作>.png` 对应行为目录中的动作名称。替换角色时应成套重绘这些帧，并保持每张画布尺寸和脚底锚点一致；`assets/character.png` 保留为原始立绘与托盘图标来源。
+
+新动作素材应先生成完整角色白底图，确认脸、双手、头发、裙摆、鲸尾和双脚都完整，再转换为项目帧。开发依赖为 Pillow、OpenCV 和 NumPy：
+
+```powershell
+python scripts\prepare-generated-frame.py input.jpg assets\frames\frame-ciallo.png --alternate-output assets\frames\frame-ciallo-b.png
+```
+
+脚本会从画布边缘移除白底，将角色缩放到 `438 × 495` 透明画布，并统一为底部居中的脚底锚点。`--alternate-output` 只生成无部件拆分的轻微整体摆动；正式复杂动作应使用独立绘制的完整角色帧。多帧动作在 `src/renderer/app.js` 的 `frameSequences` 中登记，运行时按顺序切换整张图片。
 
 ## 隐私与安全
 

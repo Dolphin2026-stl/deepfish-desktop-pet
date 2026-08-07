@@ -185,12 +185,14 @@ function registerPowerEvents() {
 
 async function runSmokeCapture() {
   if (!process.argv.includes("--smoke-test") || !petWindow) return;
-  const outputDir = process.env.DEEPFISH_SMOKE_DIR || app.getPath("temp");
+  const argumentValue = (prefix) => process.argv.find((value) => value.startsWith(prefix))?.slice(prefix.length);
+  const outputDir = argumentValue("--smoke-dir=") || process.env.DEEPFISH_SMOKE_DIR || app.getPath("temp");
+  const smokeAction = argumentValue("--smoke-action=") || process.env.DEEPFISH_SMOKE_ACTION || "shock";
   fs.mkdirSync(outputDir, { recursive: true });
   await new Promise((resolve) => setTimeout(resolve, 1200));
   const petShot = await petWindow.capturePage();
   fs.writeFileSync(path.join(outputDir, "pet-window.png"), petShot.toPNG());
-  petWindow.webContents.send("pet-command", "shock");
+  petWindow.webContents.send("pet-command", smokeAction);
   await new Promise((resolve) => setTimeout(resolve, 650));
   const actionShot = await petWindow.capturePage();
   if (actionShot.isEmpty()) throw new Error("Action smoke capture is empty");

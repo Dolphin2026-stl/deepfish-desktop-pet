@@ -14,9 +14,12 @@ const providerLabel = document.querySelector("#provider-label");
 
 const behaviorApi = window.DeepFishBehaviors;
 const frameAliases = { dream: "sleep" };
+const frameSequences = {
+  ciallo: { names: ["ciallo", "ciallo-b"], interval: 280 }
+};
 const frameNames = [
   "neutral", "walk", "walk-b", "wash", "work", "coffee", "toy", "sleep", "hungry",
-  "sit", "pat", "feed", "shy", "trip", "cry", "think", "smug", "angry", "ciallo",
+  "sit", "pat", "feed", "shy", "trip", "cry", "think", "smug", "angry", "ciallo", "ciallo-b",
   "fly", "price", "panic", "rival", "shock", "pressure", "stranded", "stretch",
   "startle", "goAway"
 ];
@@ -100,6 +103,16 @@ function startFrameLoop(names, interval = 220) {
     index = (index + 1) % names.length;
     setFrame(names[index]);
   }, interval);
+}
+
+function playBehaviorFrames(name, duration) {
+  const sequence = frameSequences[name];
+  if (!sequence) {
+    playFrame(name, duration);
+    return;
+  }
+  startFrameLoop(sequence.names, sequence.interval);
+  frameTimer = setTimeout(() => stopFramePlayback(), duration);
 }
 
 for (const name of frameNames) {
@@ -197,7 +210,7 @@ function runBehavior(id, options = {}) {
   setScene(behavior.scene);
   setExpression(behavior.expression);
   animate(id, behavior.duration);
-  playFrame(id, behavior.duration);
+  playBehaviorFrames(id, behavior.duration);
   particles(behavior.icon, ["cry", "shock", "rival"].includes(id) ? 6 : 3);
   if (options.say !== false) say(behaviorApi.formatLine(id), options.label || behaviorLabels[id], Math.min(5200, behavior.duration + 1800));
   clearTimeout(sceneTimer);
