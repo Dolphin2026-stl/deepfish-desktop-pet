@@ -13,6 +13,7 @@ const required = [
   "src/shared/behaviors.js",
   "assets/character.png",
   "assets/frames/frame-neutral.png",
+  "assets/frames/frame-blink.png",
   "assets/frames/frame-walk.png",
   "assets/frames/frame-walk-b.png",
   "assets/frames/frame-ciallo-b.png",
@@ -43,7 +44,9 @@ const required = [
   "assets/frames/frame-work.png",
   "scripts/extract-reference-frame.py",
   "scripts/stamp-apron-emblem.py",
-  "scripts/prepare-generated-frame.py"
+  "scripts/prepare-generated-frame.py",
+  "scripts/create-blink-frame.py",
+  "scripts/align-frame-to-reference.py"
 ];
 
 for (const relative of required) {

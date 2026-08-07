@@ -18,7 +18,7 @@ const frameSequences = {
   ciallo: { names: ["ciallo", "ciallo-b"], interval: 420 }
 };
 const frameNames = [
-  "neutral", "walk", "walk-b", "wash", "work", "coffee", "toy", "sleep", "hungry",
+  "neutral", "blink", "walk", "walk-b", "wash", "work", "coffee", "toy", "sleep", "hungry",
   "sit", "pat", "feed", "shy", "trip", "cry", "think", "smug", "angry", "ciallo", "ciallo-b",
   "fly", "price", "panic", "rival", "shock", "pressure", "stranded", "stretch",
   "startle", "goAway"
@@ -51,6 +51,7 @@ let walkTimer;
 let walkStopTimer;
 let frameTimer;
 let frameLoopTimer;
+let blinkTimer;
 let walkPending = false;
 let walkDirection = -1;
 let drag;
@@ -80,7 +81,7 @@ function setFrame(name) {
 
 function stopFramePlayback(reset = true) {
   clearTimeout(frameTimer);
-  clearInterval(frameLoopTimer);
+  clearTimeout(frameLoopTimer);
   frameTimer = undefined;
   frameLoopTimer = undefined;
   if (reset) setFrame(restingFrame());
@@ -98,11 +99,14 @@ function playFrame(name, duration) {
 function startFrameLoop(names, interval = 220) {
   stopFramePlayback(false);
   let index = 0;
-  setFrame(names[index]);
-  frameLoopTimer = setInterval(() => {
-    index = (index + 1) % names.length;
+  const durations = Array.isArray(interval) ? interval : names.map(() => interval);
+  const advance = () => {
     setFrame(names[index]);
-  }, interval);
+    const duration = durations[index % durations.length] || 220;
+    index = (index + 1) % names.length;
+    frameLoopTimer = setTimeout(advance, duration);
+  };
+  advance();
 }
 
 function playBehaviorFrames(name, duration) {
@@ -182,7 +186,8 @@ function startWalk(duration = 7200, announce = true) {
   setExpression("happy");
   animate("walk", duration);
   appRoot.classList.add("is-walking");
-  startFrameLoop(["walk", "walk-b"]);
+  // Uneven timing gives the two full-body walk frames a small weight shift.
+  startFrameLoop(["walk", "walk-b", "walk-b", "walk"], [165, 235, 305, 190]);
   if (announce) say(behaviorApi.formatLine("walk"), behaviorLabels.walk, 3400);
   walkTimer = setInterval(async () => {
     if (walkPending || drag || !chatPanel.hidden) return;
@@ -380,7 +385,8 @@ stage.addEventListener("pointermove", (event) => {
   }
 });
 
-stage.addEventListener("pointerup", () => {
+stage.addEventListener("pointerup", (event) => {
+  if (event.button !== 0) return;
   const moved = drag?.total || 0;
   drag = undefined;
   if (moved > 10) {
@@ -407,6 +413,7 @@ stage.addEventListener("keydown", (event) => {
 
 document.addEventListener("contextmenu", (event) => {
   event.preventDefault();
+  say("干嘛？", "右键菜单", 2200);
   window.deepFish.showMenu();
 });
 
@@ -436,3 +443,20 @@ window.deepFish.getSettings().then(applySettings);
 applyClock();
 setInterval(applyClock, 60000);
 scheduleIdle();
+
+function scheduleBlink() {
+  clearTimeout(blinkTimer);
+  const delay = 2800 + Math.random() * 4200;
+  blinkTimer = setTimeout(() => {
+    const busy = drag || !chatPanel.hidden || frameTimer || frameLoopTimer || appRoot.classList.contains("is-walking");
+    if (!busy) {
+      const previousFrame = character.dataset.frame || restingFrame();
+      setFrame("blink");
+      setTimeout(() => {
+        if (character.dataset.frame === "blink") setFrame(previousFrame);
+      }, 135);
+    }
+    scheduleBlink();
+  }, delay);
+}
+scheduleBlink();
