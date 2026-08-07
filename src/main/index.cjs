@@ -18,30 +18,60 @@ let settingsWindow;
 let tray;
 let store;
 let lockedAt = 0;
+let petFixedWindowSize;
+let petRequestedWindowSize = { width: 340, height: 430 };
+let petSizeCorrectionTimer;
 
+const PET_WINDOW_SIZE = Object.freeze({ width: 340, height: 430 });
 const rendererPath = (file) => path.join(__dirname, "..", "renderer", file);
 const assetPath = (file) => path.join(__dirname, "..", "..", "assets", file);
 
-function keepOnScreen(win, x, y) {
+function keepOnScreen(win, x, y, fixedSize) {
   const display = screen.getDisplayNearestPoint({ x, y });
   const bounds = display.workArea;
-  const [width, height] = win.getSize();
+  const [width, height] = fixedSize ? [fixedSize.width, fixedSize.height] : win.getSize();
   return [
     Math.min(Math.max(x, bounds.x), bounds.x + bounds.width - width),
     Math.min(Math.max(y, bounds.y), bounds.y + bounds.height - height)
   ];
 }
 
+function setPetBounds(x, y) {
+  const [nextX, nextY] = keepOnScreen(petWindow, x, y, petFixedWindowSize);
+  petWindow.setPosition(nextX, nextY, false);
+  clearTimeout(petSizeCorrectionTimer);
+  correctPetWindowSize();
+  return petWindow.getPosition();
+}
+
+function correctPetWindowSize(attempt = 0) {
+  if (!petWindow || petWindow.isDestroyed() || !petFixedWindowSize) return;
+  const [width, height] = petWindow.getSize();
+  if (width === petFixedWindowSize.width && height === petFixedWindowSize.height) return;
+  petRequestedWindowSize = {
+    width: Math.max(1, petRequestedWindowSize.width + petFixedWindowSize.width - width),
+    height: Math.max(1, petRequestedWindowSize.height + petFixedWindowSize.height - height)
+  };
+  petWindow.setSize(petRequestedWindowSize.width, petRequestedWindowSize.height, false);
+  if (attempt < 5) {
+    petSizeCorrectionTimer = setTimeout(() => correctPetWindowSize(attempt + 1), 0);
+  }
+}
+
 function createPetWindow() {
+  clearTimeout(petSizeCorrectionTimer);
+  petFixedWindowSize = undefined;
+  petRequestedWindowSize = { ...PET_WINDOW_SIZE };
   const display = screen.getPrimaryDisplay().workArea;
   petWindow = new BrowserWindow({
-    width: 340,
-    height: 430,
+    ...PET_WINDOW_SIZE,
     x: display.x + display.width - 370,
     y: display.y + display.height - 460,
     transparent: true,
     frame: false,
     resizable: false,
+    maximizable: false,
+    fullscreenable: false,
     show: false,
     alwaysOnTop: store.data.alwaysOnTop,
     skipTaskbar: true,
@@ -56,7 +86,18 @@ function createPetWindow() {
   });
   petWindow.setAlwaysOnTop(store.data.alwaysOnTop, "floating");
   petWindow.loadFile(rendererPath("index.html"));
-  petWindow.once("ready-to-show", () => petWindow.showInactive());
+  petWindow.once("ready-to-show", () => {
+    petWindow.showInactive();
+    const [width, height] = petWindow.getSize();
+    // Windows may round transparent-window DIP widths differently by position.
+    // An even baseline remains representable across the display during dragging.
+    petFixedWindowSize = {
+      width: Math.ceil(width / 2) * 2,
+      height: Math.ceil(height / 2) * 2
+    };
+    correctPetWindowSize();
+  });
+  petWindow.on("will-resize", (event) => event.preventDefault());
   petWindow.on("closed", () => { petWindow = undefined; });
 }
 
@@ -143,16 +184,14 @@ function registerIpc() {
   ipcMain.on("move-pet", (_event, delta) => {
     if (!petWindow || petWindow.isDestroyed()) return;
     const [x, y] = petWindow.getPosition();
-    const [nextX, nextY] = keepOnScreen(petWindow, x + Math.round(delta.x), y + Math.round(delta.y));
-    petWindow.setPosition(nextX, nextY, false);
+    setPetBounds(x + Math.round(delta.x), y + Math.round(delta.y));
   });
   ipcMain.handle("walk-pet", (_event, delta) => {
     if (!petWindow || petWindow.isDestroyed()) return { boundary: true };
     const [x, y] = petWindow.getPosition();
     const targetX = x + Math.round(delta.x);
     const targetY = y + Math.round(delta.y);
-    const [nextX, nextY] = keepOnScreen(petWindow, targetX, targetY);
-    petWindow.setPosition(nextX, nextY, false);
+    const [nextX, nextY] = setPetBounds(targetX, targetY);
     return { x: nextX, y: nextY, boundary: nextX !== targetX || nextY !== targetY };
   });
   ipcMain.on("open-settings", createSettingsWindow);
@@ -191,6 +230,19 @@ async function runSmokeCapture() {
   const smokeWait = Number(argumentValue("--smoke-wait=")) || 650;
   fs.mkdirSync(outputDir, { recursive: true });
   await new Promise((resolve) => setTimeout(resolve, 1200));
+  const initialBounds = petWindow.getBounds();
+  const initialLayout = await petWindow.webContents.executeJavaScript("({ speechWidth: document.querySelector('#speech').getBoundingClientRect().width, stageWidth: document.querySelector('#pet-stage').getBoundingClientRect().width })");
+  const workArea = screen.getDisplayMatching(petWindow.getBounds()).workArea;
+  setPetBounds(workArea.x + workArea.width - 1, workArea.y + workArea.height - 1);
+  await new Promise((resolve) => setTimeout(resolve, 80));
+  const edgeBounds = petWindow.getBounds();
+  const edgeLayout = await petWindow.webContents.executeJavaScript("({ speechWidth: document.querySelector('#speech').getBoundingClientRect().width, stageWidth: document.querySelector('#pet-stage').getBoundingClientRect().width })");
+  if (edgeBounds.width !== initialBounds.width || edgeBounds.height !== initialBounds.height) {
+    throw new Error(`Pet window size changed at screen edge: initial=${JSON.stringify(initialBounds)} edge=${JSON.stringify(edgeBounds)}`);
+  }
+  if (edgeLayout.speechWidth !== initialLayout.speechWidth || edgeLayout.stageWidth !== initialLayout.stageWidth) {
+    throw new Error(`Pet layout changed at screen edge: initial=${JSON.stringify(initialLayout)} edge=${JSON.stringify(edgeLayout)}`);
+  }
   const petShot = await petWindow.capturePage();
   fs.writeFileSync(path.join(outputDir, "pet-window.png"), petShot.toPNG());
   petWindow.webContents.send("pet-command", smokeAction);
@@ -215,7 +267,12 @@ app.whenReady().then(() => {
   createPetWindow();
   createTray();
   registerPowerEvents();
-  petWindow.webContents.once("did-finish-load", runSmokeCapture);
+  petWindow.webContents.once("did-finish-load", () => {
+    runSmokeCapture().catch((error) => {
+      console.error(`SMOKE_FAILED ${error.stack || error.message}`);
+      app.exit(1);
+    });
+  });
 });
 
 app.on("window-all-closed", (event) => event.preventDefault());

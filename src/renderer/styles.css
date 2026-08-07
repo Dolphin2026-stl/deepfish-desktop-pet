@@ -39,8 +39,9 @@ button { -webkit-app-region: no-drag; }
   position: absolute;
   z-index: 6;
   top: 10px;
-  left: 18px;
-  right: 18px;
+  left: 50%;
+  width: 304px;
+  max-width: calc(100% - 36px);
   min-height: 66px;
   padding: 11px 14px;
   border: 1px solid rgba(32, 65, 130, 0.18);
@@ -49,7 +50,7 @@ button { -webkit-app-region: no-drag; }
   box-shadow: 0 8px 24px rgba(24, 47, 103, 0.16);
   color: var(--ink);
   opacity: 0;
-  transform: translateY(8px);
+  transform: translate(-50%, 8px);
   transition: opacity 180ms ease, transform 180ms ease;
   pointer-events: none;
 }
@@ -67,7 +68,7 @@ button { -webkit-app-region: no-drag; }
   transform: rotate(45deg);
 }
 
-.speech.visible { opacity: 1; transform: translateY(0); }
+.speech.visible { opacity: 1; transform: translate(-50%, 0); }
 .speech strong { display: block; margin-bottom: 3px; color: var(--blue); font-size: 12px; }
 .speech span { display: block; font-size: 13px; line-height: 1.45; }
 
