@@ -109,7 +109,7 @@ deepfish-desktop-pet/
 
 运行时会在 `assets/frames/` 中切换同尺寸、同锚点的透明 PNG，避免表情和道具随姿势发生错位。`frame-neutral.png` 是待机图，`frame-walk.png` 与 `frame-walk-b.png` 组成散步循环，其余 `frame-<动作>.png` 对应行为目录中的动作名称。替换角色时应成套重绘这些帧，并保持每张画布尺寸和脚底锚点一致；`assets/character.png` 保留为原始立绘与托盘图标来源。
 
-新动作素材应先生成完整角色白底图，确认脸、双手、头发、裙摆、鲸尾和双脚都完整，再转换为项目帧。开发依赖为 Pillow、OpenCV 和 NumPy：
+新动作素材应先生成完整角色白底图，确认脸、双手、头发、裙摆、鲸尾和双脚都完整，再转换为项目帧。开发依赖为 Pillow 和 NumPy：
 
 ```powershell
 python scripts\prepare-generated-frame.py input.jpg assets\frames\frame-ciallo.png --alternate-output assets\frames\frame-ciallo-b.png
