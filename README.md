@@ -32,6 +32,8 @@ npm install
 npm start
 ```
 
+首次完成 `npm install` 后，也可以直接双击仓库根目录的 `启动大肥鱼.vbs`。启动器会直接打开桌宠，不会保留 PowerShell 或命令提示符窗口。
+
 交互方式：
 
 | 操作 | 反馈 |
