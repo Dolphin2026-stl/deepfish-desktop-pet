@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const required = [
-  "启动大肥鱼.vbs",
+  "启动大肥鱼.cmd",
   "src/main/index.cjs",
   "src/preload.cjs",
   "src/renderer/app.js",
